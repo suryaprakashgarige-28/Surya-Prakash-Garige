@@ -1,7 +1,7 @@
 
 # Surya Prakash Garige – Portfolio
 
-This is my personal portfolio site built with HTML, CSS and JavaScript on W3Schools Spaces.
+This is my personal portfolio site built with HTML, CSS and JavaScript.
 
 It showcases:
 - My background in Aeronautical and Mechanical Engineering  
