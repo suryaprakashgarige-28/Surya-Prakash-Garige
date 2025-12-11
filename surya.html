@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surya Prakash Garige | Aeronautical Engineer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0a192f',
+                            800: '#112240',
+                            700: '#233554',
+                        },
+                        teal: {
+                            accent: '#2dd4bf', // User specified
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a192f;
+            color: #8892b0;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a192f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2dd4bf;
+            border-radius: 4px;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(17, 34, 64, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(45, 212, 191, 0.1);
+        }
+
+        /* 3D Flip Card Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        .group:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 0.5rem;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Typography Utilities */
+        .text-glow {
+            text-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
+        }
+        
+        /* Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2dd4bf;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+            mix-blend-mode: difference;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-teal-accent selection:text-navy-900">
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor hidden md:block" id="cursor"></div>
+
+    <!-- 3D Background -->
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 glass-panel" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0">
+                    <span class="text-teal-accent font-bold text-2xl tracking-tighter">Surya Prakash Garige<span class="text-white">.</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#about" class="text-gray-300 hover:text-teal-accent px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 hover:-translate-y-1 inline-block">About</a>
+                        <a href="#skills" class="text-gray-300 hover:text-teal-accent px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 hover:-translate-y-1 inline-block">Skills</a>
+                        <a href="#projects" class="text-gray-300 hover:text-teal-accent px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 hover:-translate-y-1 inline-block">Projects</a>
+                        <a href="#contact" class="border border-teal-accent text-teal-accent hover:bg-teal-accent/10 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300">Resume</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="text-gray-400 hover:text-white focus:outline-none p-2" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden glass-panel" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#about" class="text-gray-300 hover:text-teal-accent block px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#skills" class="text-gray-300 hover:text-teal-accent block px-3 py-2 rounded-md text-base font-medium">Skills</a>
+                <a href="#projects" class="text-gray-300 hover:text-teal-accent block px-3 py-2 rounded-md text-base font-medium">Projects</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative px-4 sm:px-6 lg:px-8 pt-20">
+        <div class="max-w-4xl w-full">
+            <p class="text-teal-accent font-medium tracking-widest mb-4 hero-anim opacity-0 translate-y-4">HI, MY NAME IS</p>
+            <h1 class="text-5xl sm:text-7xl font-bold text-gray-100 mb-4 hero-anim opacity-0 translate-y-4">Surya Prakash Garige.</h1>
+            <h2 class="text-4xl sm:text-6xl font-bold text-gray-400 mb-6 hero-anim opacity-0 translate-y-4">
+                Designing <span class="text-teal-accent relative inline-block">
+                    Future Skies
+                    <svg class="absolute w-full h-2 bottom-0 left-0 text-teal-accent opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="2" fill="none" /></svg>
+                </span>
+            </h2>
+            <p class="max-w-xl text-lg text-gray-400 mb-10 hero-anim opacity-0 translate-y-4 leading-relaxed">
+                Aeronautical Engineering student at IARE Hyderabad specializing in <span class="text-teal-accent">Aerodynamics</span>, <span class="text-teal-accent">Fluid Mechanics</span>, and <span class="text-teal-accent">AI-assisted Design</span>.
+            </p>
+            <div class="hero-anim opacity-0 translate-y-4">
+                <a href="#projects" class="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-transparent px-8 font-medium text-teal-accent border border-teal-accent transition-all duration-300 hover:bg-teal-accent/10">
+                    <span class="mr-2">Check out my work</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Animated Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-teal-accent text-2xl"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="order-2 md:order-1 gs-reveal">
+                <div class="flex items-center mb-8">
+                    <span class="text-teal-accent text-xl font-bold mr-4">01.</span>
+                    <h2 class="text-3xl font-bold text-gray-100">About Me</h2>
+                    <div class="h-px bg-navy-700 flex-grow ml-4"></div>
+                </div>
+                <div class="space-y-4 text-gray-400 text-lg leading-relaxed">
+                    <p>
+                        Hello! I'm Surya, an aspiring Aeronautical Engineer with a passion for integrating Artificial Intelligence with traditional mechanics. My journey started with a Diploma in <span class="text-teal-accent">Mechanical Engineering</span> where I secured a <span class="text-teal-accent font-bold">GPA of 9.43</span>.
+                    </p>
+                    <p>
+                        Currently pursuing my B.Tech at <span class="text-white">IARE Hyderabad</span>, I focus on bridging the gap between theoretical aerodynamics and practical robotics.
+                    </p>
+                    <p>
+                        My technical philosophy revolves around efficiency—whether it's optimizing airflow around a wing or streamlining code for an embedded system.
+                    </p>
+                </div>
+
+                <!-- Education Mini-Cards -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="glass-panel p-4 rounded-lg hover:-translate-y-1 transition-transform duration-300">
+                        <i class="fas fa-graduation-cap text-teal-accent mb-2 text-xl"></i>
+                        <h4 class="text-white font-bold">B.Tech Aeronautical</h4>
+                        <p class="text-sm">IARE Hyderabad</p>
+                        <p class="text-xs text-gray-500 mt-1">Current</p>
+                    </div>
+                    <div class="glass-panel p-4 rounded-lg hover:-translate-y-1 transition-transform duration-300">
+                        <i class="fas fa-certificate text-teal-accent mb-2 text-xl"></i>
+                        <h4 class="text-white font-bold">Diploma Mechanical</h4>
+                        <p class="text-sm">Excellent Academic Record</p>
+                        <p class="text-xs text-teal-accent mt-1">GPA: 9.43</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-1 md:order-2 flex justify-center relative gs-reveal">
+                <div class="relative w-64 h-64 sm:w-80 sm:h-80 group">
+                    <div class="absolute inset-0 border-2 border-teal-accent rounded-lg translate-x-4 translate-y-4 transition-transform duration-300 group-hover:translate-x-2 group-hover:translate-y-2"></div>
+                    <div class="absolute inset-0 bg-teal-accent/20 rounded-lg group-hover:bg-transparent transition-colors duration-300 z-10"></div>
+                    <!-- Placeholder for Image using a styled div with icon since no image provided -->
+                    <div class="w-full h-full bg-navy-700 rounded-lg overflow-hidden flex items-center justify-center relative z-0">
+                         <i class="fas fa-user-astronaut text-6xl text-gray-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-12 bg-navy-800/50">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="gs-stat">
+                <h3 class="text-4xl font-bold text-teal-accent mb-2"><span class="counter" data-target="9.43">0</span></h3>
+                <p class="text-gray-400 text-sm uppercase tracking-wider">Diploma GPA</p>
+            </div>
+            <div class="gs-stat">
+                <h3 class="text-4xl font-bold text-teal-accent mb-2"><span class="counter" data-target="3">0</span>+</h3>
+                <p class="text-gray-400 text-sm uppercase tracking-wider">Major Projects</p>
+            </div>
+            <div class="gs-stat">
+                <h3 class="text-4xl font-bold text-teal-accent mb-2"><span class="counter" data-target="15">0</span>+</h3>
+                <p class="text-gray-400 text-sm uppercase tracking-wider">Tech Skills</p>
+            </div>
+            <div class="gs-stat">
+                <h3 class="text-4xl font-bold text-teal-accent mb-2">100%</h3>
+                <p class="text-gray-400 text-sm uppercase tracking-wider">Commitment</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="flex items-center mb-12 gs-reveal">
+            <span class="text-teal-accent text-xl font-bold mr-4">02.</span>
+            <h2 class="text-3xl font-bold text-gray-100">Technical Arsenal</h2>
+            <div class="h-px bg-navy-700 flex-grow ml-4"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Domain Skills -->
+            <div class="gs-reveal">
+                <h3 class="text-xl text-white font-semibold mb-6 flex items-center">
+                    <i class="fas fa-plane text-teal-accent mr-3"></i> Aeronautical & Mech
+                </h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Aerodynamics & Fluid Mechanics</span>
+                            <span class="text-teal-accent text-sm">90%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="90%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Turbomachinery</span>
+                            <span class="text-teal-accent text-sm">85%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="85%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Thermodynamics</span>
+                            <span class="text-teal-accent text-sm">88%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="88%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Programming Skills -->
+            <div class="gs-reveal">
+                <h3 class="text-xl text-white font-semibold mb-6 flex items-center">
+                    <i class="fas fa-code text-teal-accent mr-3"></i> Programming & Tools
+                </h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Python & AI/ML</span>
+                            <span class="text-teal-accent text-sm">85%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="85%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Java & C</span>
+                            <span class="text-teal-accent text-sm">80%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="80%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400 font-medium">Web Dev (HTML/CSS/JS)</span>
+                            <span class="text-teal-accent text-sm">75%</span>
+                        </div>
+                        <div class="h-2 bg-navy-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-teal-accent skill-bar" style="width: 0%" data-width="75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Soft Skills Tags -->
+        <div class="mt-12 gs-reveal text-center">
+            <h3 class="text-xl text-white font-semibold mb-6">Leadership & Management</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <span class="px-4 py-2 border border-teal-accent/30 rounded-full text-teal-accent hover:bg-teal-accent/10 transition cursor-default">Team Leadership</span>
+                <span class="px-4 py-2 border border-teal-accent/30 rounded-full text-teal-accent hover:bg-teal-accent/10 transition cursor-default">Project Management</span>
+                <span class="px-4 py-2 border border-teal-accent/30 rounded-full text-teal-accent hover:bg-teal-accent/10 transition cursor-default">Technical Writing</span>
+                <span class="px-4 py-2 border border-teal-accent/30 rounded-full text-teal-accent hover:bg-teal-accent/10 transition cursor-default">Problem Solving</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="flex items-center mb-12 gs-reveal">
+            <span class="text-teal-accent text-xl font-bold mr-4">03.</span>
+            <h2 class="text-3xl font-bold text-gray-100">Featured Projects</h2>
+            <div class="h-px bg-navy-700 flex-grow ml-4"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Project 1: Firefighter Robot -->
+            <div class="group h-80 perspective-1000 cursor-pointer gs-reveal">
+                <div class="flip-card-inner transition-transform duration-700">
+                    <!-- Front -->
+                    <div class="flip-card-front glass-panel p-8 flex flex-col justify-center items-center border-b-4 border-teal-accent">
+                        <div class="w-16 h-16 bg-navy-900 rounded-full flex items-center justify-center mb-6 text-teal-accent text-3xl shadow-lg shadow-teal-accent/20">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-100 mb-2">360° Firefighter Robot</h3>
+                        <p class="text-teal-accent text-sm font-mono">Team Leader</p>
+                    </div>
+                    <!-- Back -->
+                    <div class="flip-card-back bg-navy-800 p-8 flex flex-col justify-between border border-teal-accent/20 rounded-lg shadow-xl">
+                        <div>
+                            <h4 class="text-teal-accent font-bold text-xl mb-4">Project Details</h4>
+                            <p class="text-gray-400 text-sm mb-4">
+                                Designed a robotic system capable of navigating hazardous environments to detect and extinguish fires.
+                            </p>
+                            <ul class="text-left text-gray-400 text-sm space-y-2 list-disc list-inside">
+                                <li>Remote Operation</li>
+                                <li>Safety Systems Integration</li>
+                                <li>Real-time Monitoring</li>
+                            </ul>
+                        </div>
+                        <div class="flex gap-3 text-xs font-mono text-teal-accent mt-4">
+                            <span>Embedded C</span>
+                            <span>Robotics</span>
+                            <span>Sensors</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2: Earthquake Detector -->
+            <div class="group h-80 perspective-1000 cursor-pointer gs-reveal">
+                <div class="flip-card-inner transition-transform duration-700">
+                    <!-- Front -->
+                    <div class="flip-card-front glass-panel p-8 flex flex-col justify-center items-center border-b-4 border-teal-accent">
+                        <div class="w-16 h-16 bg-navy-900 rounded-full flex items-center justify-center mb-6 text-teal-accent text-3xl shadow-lg shadow-teal-accent/20">
+                            <i class="fas fa-house-crack"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-100 mb-2">Earthquake Detector</h3>
+                        <p class="text-teal-accent text-sm font-mono">Low-cost Solution</p>
+                    </div>
+                    <!-- Back -->
+                    <div class="flip-card-back bg-navy-800 p-8 flex flex-col justify-between border border-teal-accent/20 rounded-lg shadow-xl">
+                        <div>
+                            <h4 class="text-teal-accent font-bold text-xl mb-4">Project Details</h4>
+                            <p class="text-gray-400 text-sm mb-4">
+                                Developed a cost-effective sensor system to detect early seismic vibrations and trigger alarms.
+                            </p>
+                            <ul class="text-left text-gray-400 text-sm space-y-2 list-disc list-inside">
+                                <li>Signal Analysis</li>
+                                <li>Vibration Sensors</li>
+                                <li>Safety Protocols</li>
+                            </ul>
+                        </div>
+                        <div class="flex gap-3 text-xs font-mono text-teal-accent mt-4">
+                            <span>IoT</span>
+                            <span>Signal Proc.</span>
+                            <span>Hardware</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 3: AI Drag Prediction -->
+            <div class="group h-80 perspective-1000 cursor-pointer gs-reveal">
+                <div class="flip-card-inner transition-transform duration-700">
+                    <!-- Front -->
+                    <div class="flip-card-front glass-panel p-8 flex flex-col justify-center items-center border-b-4 border-teal-accent">
+                        <div class="w-16 h-16 bg-navy-900 rounded-full flex items-center justify-center mb-6 text-teal-accent text-3xl shadow-lg shadow-teal-accent/20">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-100 mb-2">AI Drag Prediction</h3>
+                        <p class="text-teal-accent text-sm font-mono">Aerodynamics + ML</p>
+                    </div>
+                    <!-- Back -->
+                    <div class="flip-card-back bg-navy-800 p-8 flex flex-col justify-between border border-teal-accent/20 rounded-lg shadow-xl">
+                        <div>
+                            <h4 class="text-teal-accent font-bold text-xl mb-4">Project Details</h4>
+                            <p class="text-gray-400 text-sm mb-4">
+                                Utilized Machine Learning algorithms to predict aerodynamic drag coefficients on aircraft wings, reducing simulation time.
+                            </p>
+                            <ul class="text-left text-gray-400 text-sm space-y-2 list-disc list-inside">
+                                <li>Data Modeling</li>
+                                <li>CFD Optimization</li>
+                                <li>Python Implementation</li>
+                            </ul>
+                        </div>
+                        <div class="flex gap-3 text-xs font-mono text-teal-accent mt-4">
+                            <span>Python</span>
+                            <span>Scikit-Learn</span>
+                            <span>CFD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center gs-reveal">
+        <p class="text-teal-accent font-mono mb-4">04. What's Next?</p>
+        <h2 class="text-4xl sm:text-5xl font-bold text-gray-100 mb-6">Get In Touch</h2>
+        <p class="text-gray-400 text-lg mb-12 max-w-xl mx-auto">
+            I'm currently looking for internships and opportunities in Aeronautical Engineering and Robotics. Whether you have a question or just want to say hi, I'll try my best to get back to you!
+        </p>
+        <a href="mailto:suryaprakashgarige009@gmail.com" class="inline-block border border-teal-accent text-teal-accent px-8 py-4 rounded hover:bg-teal-accent/10 transition-colors duration-300 font-medium">
+            Say Hello
+        </a>
+        
+        <div class="mt-16 flex justify-center space-x-8">
+            <a href="https://www.linkedin.com/in/surya-prakash-garige/" class="text-gray-400 hover:text-teal-accent text-2xl transition-all hover:-translate-y-1"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/suryaprakashgarige-28" class="text-gray-400 hover:text-teal-accent text-2xl transition-all hover:-translate-y-1"><i class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/surya_prakash_garige/" class="text-gray-400 hover:text-teal-accent text-2xl transition-all hover:-translate-y-1"><i class="fab fa-instagram"></i></a>
+        </div>
+        
+        <footer class="mt-20 text-gray-500 text-sm font-mono">
+            <p>Designed & Built by Surya Prakash Garige</p>
+        </footer>
+    </section>
+
+    <script>
+        // --- 1. Three.js Background Animation (Starfield/Aero Particles) ---
+        const initThreeJS = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15; // Spread
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.005,
+                color: 0x2dd4bf, // Teal color
+                transparent: true,
+                opacity: 0.8,
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, material);
+            scene.add(particlesMesh);
+
+            camera.position.z = 2;
+
+            // Mouse Interaction
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                // Rotate particles slowly
+                particlesMesh.rotation.y += 0.0005;
+                particlesMesh.rotation.x += 0.0002;
+
+                // Subtle response to mouse
+                particlesMesh.rotation.x += mouseY * 0.00001;
+                particlesMesh.rotation.y += mouseX * 0.00001;
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // Resize Handler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // --- 2. GSAP Animations ---
+        const initGSAP = () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Hero Animation
+            gsap.to(".hero-anim", {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                stagger: 0.2,
+                ease: "power3.out",
+                delay: 0.5
+            });
+
+            // Navbar hide/show on scroll
+            let lastScroll = 0;
+            const navbar = document.getElementById('navbar');
+            
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll <= 0) {
+                    navbar.classList.remove('shadow-lg');
+                } else {
+                    navbar.classList.add('shadow-lg');
+                }
+                lastScroll = currentScroll;
+            });
+
+            // Section Reveal Animation
+            gsap.utils.toArray('.gs-reveal').forEach(section => {
+                gsap.from(section, {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    },
+                    y: 50,
+                    opacity: 0,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+            });
+
+            // Skill Bars Animation
+            gsap.utils.toArray('.skill-bar').forEach(bar => {
+                gsap.to(bar, {
+                    scrollTrigger: {
+                        trigger: bar,
+                        start: "top 90%"
+                    },
+                    width: bar.getAttribute('data-width'),
+                    duration: 1.5,
+                    ease: "power2.out"
+                });
+            });
+
+            // Stats Counter
+            gsap.utils.toArray('.counter').forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                gsap.to(counter, {
+                    scrollTrigger: {
+                        trigger: counter,
+                        start: "top 85%"
+                    },
+                    innerText: target,
+                    duration: 2,
+                    snap: { innerText: target % 1 === 0 ? 1 : 0.01 },
+                    ease: "power1.inOut",
+                    onUpdate: function() {
+                        counter.innerText = Math.ceil(this.targets()[0].innerText * 100) / 100;
+                    }
+                });
+            });
+        };
+
+        // --- 3. Custom Cursor Logic ---
+        const initCursor = () => {
+            const cursor = document.getElementById('cursor');
+            
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            // Expand cursor on clickable elements
+            const clickables = document.querySelectorAll('a, button, .cursor-pointer');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'scale(2.5)';
+                    cursor.style.backgroundColor = 'rgba(45, 212, 191, 0.1)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'scale(1)';
+                    cursor.style.backgroundColor = 'transparent';
+                });
+            });
+        };
+
+        // Initialize Everything
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            initGSAP();
+            initCursor();
+        });
+
+    </script>
+</body>
+</html>
